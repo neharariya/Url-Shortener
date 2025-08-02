@@ -1,4 +1,3 @@
-//import asynchronous in nature 
 import express from "express";
 import connectToDB from "./src/config/mongodb.config.js";
 import dotenv from "dotenv";
@@ -7,13 +6,34 @@ import authRouter from "./src/routes/auth.routes.js";
 import { globalErrorHandler } from "./src/utils/errorHandler.utils.js";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+
 dotenv.config("./.env");
 
 const app = express();
+
+// CORS configuration
 app.use(cors({
-    origin: 'http://localhost:5173', // Allow all origins for development
-    credentials: true // Allow cookies
+    origin: function (origin, callback) {
+        // Allow requests with no origin (mobile apps, curl, etc.)
+        if (!origin) return callback(null, true);
+        
+        const allowedOrigins = [
+            'http://localhost:5173',
+            'http://localhost:3000',
+            process.env.FRONTEND_URL
+        ].filter(Boolean);
+        
+        if (allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'Cookie']
 }));
+
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
@@ -21,13 +41,11 @@ app.use(express.urlencoded({extended: true}));
 app.use("/", shortUrlRouter);
 app.use("/auth", authRouter);
 
-app.use((req, res, next) => {
-  res.status(404).json({ success: false, message: "Route not found" });
-});
-
 app.use(globalErrorHandler);
 
-app.listen(3000, ()=>{
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, ()=>{
     connectToDB();
-    console.log("running on port 3000");
-})
+    console.log(`Server running on port ${PORT}`);
+});
