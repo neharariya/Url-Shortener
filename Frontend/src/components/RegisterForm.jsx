@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import {registerUser} from '../api/user.api.js';
-import { Link } from '@tanstack/react-router';
+import { Link, useNavigate} from '@tanstack/react-router';
 
 const RegisterForm = () => {
   const [formData, setFormData] = useState({
@@ -11,6 +11,7 @@ const RegisterForm = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -36,6 +37,10 @@ const RegisterForm = () => {
         console.log(data);
       }
         setFormData({ name: '', email: '', password: '' });
+
+        setTimeout(()=>{
+            navigate({ to: '/dashboard' });
+          }, 1000)
 
     } catch (error) {
       setError(error.message || 'Registration failed');

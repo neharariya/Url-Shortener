@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import {loginUser} from '../api/user.api.js';
 import { Link, useNavigate } from '@tanstack/react-router';
+import { useDispatch, useSelector } from 'react-redux';
+import { login } from '../store/slice/authSlice';
 
 const LoginForm = () => {
   const [formData, setFormData] = useState({
@@ -11,8 +13,10 @@ const LoginForm = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-
+  const auth = useSelector((state) => state.auth);
+  console.log(auth);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -55,11 +59,12 @@ const LoginForm = () => {
         if (data) {
           setSuccess('login successful!!');
           console.log(data);
+          dispatch(login(data.user));
         }
           setFormData({email: '', password: '' });
 
           setTimeout(()=>{
-            navigate({ to: '/' });
+            navigate({ to: '/dashboard' });
           }, 1000)
   
       } catch (error) {

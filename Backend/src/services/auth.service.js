@@ -3,6 +3,7 @@ import { AppError} from "../utils/errorHandler.utils.js";
 import {findUserByEmail, createUser} from "../dao/user.dao.js";
 import { signToken } from "../utils/helper.utils.js";
 import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
 
 export const registerUserService = async (name, email, password) => {
   try { 
@@ -22,9 +23,11 @@ export const registerUserService = async (name, email, password) => {
 export const loginUserService = async (email, password) => {
   try {
     const user = await findUserByEmail(email);
-    if(!user || user.password !== password) throw new AppError("invalid credentials", 400);
+    if(!user) throw new AppError("invalid email or password", 400);
+    const isMatch = await bcrypt.compare(password, user.password);
+    if(!isMatch) throw new AppError("invalid email or password", 400);
     const token = await signToken({id:user._id});
-    return token;
+    return {token, user};
   } catch (err) {
     console.error("Error in loginUserService:", err);
     throw err;

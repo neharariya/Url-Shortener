@@ -4,7 +4,7 @@ export const findUserByEmail = async (email) =>{
 
     try{
         return await
-         User.findOne({email});
+         User.findOne({email}).select('+password');
     }catch(err){
         throw new Error(err);
     }

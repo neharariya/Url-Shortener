@@ -7,10 +7,16 @@ export const registerUser = async(name,email,password)=>{
 
 export const loginUser = async(email,password)=>{
     const {data} = await axiosInstance.post("/auth/login", {email,password});
-    return data.token;
+    return data;
 }
 
 export const logoutUser = async ()=>{
     const {data} = await axiosInstance.get("/auth/logout");
     return data.message;
 }
+
+export const getCurrentUser = async()=>{
+    const {data} = await axiosInstance.get("/auth/me");
+    return data;
+}
+    

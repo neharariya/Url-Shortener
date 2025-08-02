@@ -1,4 +1,4 @@
-import {CreateShortUrlserviceWithoutUser,CreateShortUrlserviceWithUser} from "../services/shortUrl.service.js";
+import {CreateShortUrlserviceWithoutUser,CreateShortUrlserviceWithUser, verifyPasswordService, getUserUrlsService} from "../services/shortUrl.service.js";
 import {findUrlObject} from "../dao/shortUrl.dao.js";
 import { AppError} from "../utils/errorHandler.utils.js";
 import wrapAsync from "../utils/TryCatchWrapper.js";
@@ -20,31 +20,43 @@ export const createShortUrl = wrapAsync(async (req,res)=>{
 export const redirectfromShortUrl = wrapAsync(async (req,res)=>{
 
          const {id} = req.params;
-        if (!id) throw new AppError("URL is required", 400);
         const url = await findUrlObject(id);
-          if (!url) throw new AppError("Short URL not found", 404);
+        if (!url) throw new AppError("Short URL not found", 404);
+
+        if(url.isPasswordProtected){
+
+              return res.redirect(`${process.env.FRONTEND_URL}/verify-password/${id}`);
+        }
+        
         res.redirect(url.fullUrl);
 });
 
 export const createCustomShortUrl = wrapAsync(async (req,res)=>{
 
-        // console.log("🔍 createCustomShortUrl called");
-        // console.log("🔍 Request body:", req.body);
-        // console.log("🔍 User from middleware:", req.user);
-
-        const {url, customUrl} = req.body;
+        const {url, customUrl, isPasswordProtected, password} = req.body;
         if (!url) throw new AppError("URL is required", 400);
-        if (!customUrl) throw new AppError("Custom URL is required", 400);
 
         const userID = req.user._id;
-        // console.log("🔍 User ID:", userID);
 
-        // console.log("🔍 Calling service with:", {url, userID, customUrl});
-        const shortUrl = await CreateShortUrlserviceWithUser(url, userID, customUrl);
+        const shortUrl = await CreateShortUrlserviceWithUser(url, userID, customUrl, isPasswordProtected, password);
 
-        // console.log("✅ Service returned:", shortUrl);
         const fullUrl = process.env.APP_URL + shortUrl;
-        // console.log("✅ Full URL:", fullUrl);
 
         res.status(200).json({shortUrl: fullUrl});
+});
+
+export const getUserUrls = wrapAsync(async (req,res)=>{
+    const urls = await getUserUrlsService(req.user._id);
+    res.status(200).json(urls);
+});
+
+export const verifyPasswordAndRedirect = wrapAsync(async (req,res)=>{
+
+  const {id} = req.params;
+  const {password} = req.body;
+
+  if(!password) throw new AppError("Password is required", 400);
+
+    const redirectUrl = await verifyPasswordService(id, password);
+    res.status(200).json({redirectUrl});
 });

@@ -1,6 +1,9 @@
 import { Link, useRouterState} from '@tanstack/react-router';
+import {useSelector} from "react-redux";
 
 const NavBar = () => {
+
+  const {isAuthenticated} = useSelector((state) => state.auth);
 
   const router = useRouterState();
 const currentPath = router.location.pathname;
@@ -14,7 +17,7 @@ const currentPath = router.location.pathname;
           <div className="space-x-4">
             {/* <Link to ="/" className="px-3 py-1 rounded text-gray-600 hover:text-blue-500 hover:cursor-pointer">Home</Link> */}
 
-            <Link 
+            {!isAuthenticated &&(<div><Link 
             to="/" 
             className={`px-3 py-1 rounded ${currentPath === '/' ? 'bg-blue-500 text-white' : 'text-gray-600 hover:text-blue-500 hover:cursor-pointer'}`}
             >
@@ -23,24 +26,20 @@ const currentPath = router.location.pathname;
             
             <Link to ="/register" className={`px-3 py-1 rounded ${currentPath === '/register' ? 'bg-blue-500 text-white' : 'text-gray-600 hover:text-blue-500 hover:cursor-pointer'}`}>Register</Link>
 
-            <Link to ="/login" className={`px-3 py-1 rounded ${currentPath === '/login' ? 'bg-blue-500 text-white' : 'text-gray-600 hover:text-blue-500 hover:cursor-pointer'}`}>Login</Link>            
+            <Link to ="/login" className={`px-3 py-1 rounded ${currentPath === '/login' ? 'bg-blue-500 text-white' : 'text-gray-600 hover:text-blue-500 hover:cursor-pointer'}`}>Login</Link></div> )}  
 
-              {/* className={`px-3 py-1 rounded ${currentPage === 'home' ? 'bg-blue-500 text-white' : 'text-gray-600 hover:text-blue-500 hover:cursor-pointer'}`} */}
-            {/* > */}
-              {/* Home
-            </button> */}
-            {/* <button
-              onClick={() => setCurrentPage('register')}
-              className={`px-3 py-1 rounded ${currentPage === 'register' ? 'bg-blue-500 text-white' : 'text-gray-600 hover:text-blue-500 hover:cursor-pointer'}`}
+
+             {isAuthenticated &&(<div><Link 
+            to="/" 
+            className={`px-3 py-1 rounded ${currentPath === '/' ? 'bg-blue-500 text-white' : 'text-gray-600 hover:text-blue-500 hover:cursor-pointer'}`}
             >
-              Register
-            </button> */}
-            {/* <button */}
-              {/* onClick={() => setCurrentPage('login')} */}
-              {/* className={`px-3 py-1 rounded ${currentPage === 'login' ? 'bg-blue-500 text-white' : 'text-gray-600 hover:text-blue-500 hover:cursor-pointer'}`} */}
-            {/* > */}
-              {/* Login */}
-            {/* </button> */}
+            Home
+           </Link>
+            
+            <Link to ="/dashboard" className={`px-3 py-1 rounded ${currentPath === '/dashboard' ? 'bg-blue-500 text-white' : 'text-gray-600 hover:text-blue-500 hover:cursor-pointer'}`}>DashBoard</Link>
+
+            <Link to ="/logout" className={`px-3 py-1 rounded ${currentPath === '/logout' ? 'bg-blue-500 text-white' : 'text-gray-600 hover:text-blue-500 hover:cursor-pointer'}`}>Logout</Link></div> )}                  
+
           </div>
         </div>
       </nav>

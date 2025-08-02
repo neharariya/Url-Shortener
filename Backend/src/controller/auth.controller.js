@@ -18,13 +18,21 @@ export const loginUser = wrapAsync(async (req,res)=>{
         const {email , password} = req.body;
         if (!email || !password) throw new AppError("all fields are required for login", 400);
 
-        const token = await loginUserService(email, password);
+        const {token, user} = await loginUserService(email, password);
+        req.user = user;
         res.cookie("accessToken", token,cookieOptions);
-        res.status(200).json({message: "user logged in successfully",token});
+        res.status(200).json({message: "user logged in successfully",token, user});
 
 });
 
+export const logoutUser = wrapAsync(async (req,res)=>{
+        res.clearCookie("accessToken", cookieOptions);
+        res.status(200).json({message: "user logged out successfully"});
+});
 
+export const getMe = wrapAsync(async (req,res)=>{
+        res.status(200).json({user: req.user});
+});
        
 
     
